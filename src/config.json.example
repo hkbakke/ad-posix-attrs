@@ -2,6 +2,7 @@
 # REMOVE ALL COMMENTS BEFORE USE!
 #
 # JSON does not support comments!
+#
 
 # If the script is run on a domain controller in the domain "example.com"
 # the following default parameters will be autodetected and used.
