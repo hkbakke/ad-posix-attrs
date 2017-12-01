@@ -1,5 +1,14 @@
 # ad-posix-attrs
-Adds [RFC2307](https://www.ietf.org/rfc/rfc2307.txt) POSIX attributes to Active Directory for existing users and groups
+Adds [RFC2307](https://www.ietf.org/rfc/rfc2307.txt) POSIX attributes to Active Directory for existing users and groups.
+
+For users the following attributes are updated:
+* uidNumber
+* gidNumber
+* unixHomeDirectory
+* loginShell
+
+For groups the following attributes are updated:
+* gidNumber
 
 # Configuration
 Put your configuration in `config.json` in the same folder as `add-attrs.ps1`. In many cases this can just be an empty file. There is an example configuration with default values in [config.json.example](src/config.json.example).
