@@ -1,0 +1,16 @@
+#
+# REMOVE ALL COMMENTS BEFORE USE!
+#
+# JSON does not support comments!
+
+# If the script is run on a domain controller in the domain "example.com"
+# the following default parameters will be autodetected and used.
+# Modify if needed. In many cases the configuration file can be left empty.
+{
+	"id_offset": 300000,
+	"login_shell": "/bin/bash",
+	"homedir_root": "/home/example.com",
+	"search_bases": [
+		"DC=example,DC=com"
+	]
+}
