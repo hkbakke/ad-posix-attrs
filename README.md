@@ -6,7 +6,9 @@ Put your configuration in `config.json` in the same folder as `add-attrs.ps1`. I
 
 # Use
 Run in dry-run mode until you are sure it does the right thing:
-  .\add-attrs.ps1 -dry-run:$true
+
+    .\add-attrs.ps1 -dry-run:$true
   
 To write the POSIX attributes, just run:
-  .\add-attrs.ps1
+
+    .\add-attrs.ps1
