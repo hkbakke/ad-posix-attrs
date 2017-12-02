@@ -172,9 +172,9 @@ function add_group_attributes ($search_base) {
 # Run
 #
 foreach ($search_base in $search_bases) {
-    Write-Host "Generating Unix attributes for users in '${search_base}'"
+    Write-Host "Generating POSIX attributes for users in '${search_base}'"
     add_user_attributes $search_base
 
-    Write-Host "Generating Unix attributes for groups in '${search_base}'"
+    Write-Host "Generating POSIX attributes for groups in '${search_base}'"
     add_group_attributes $search_base
 }
