@@ -171,8 +171,6 @@ function add_group_attributes ($search_base) {
 #
 # Run
 #
-Write-Host "ID offset: ${id_offset}"
-
 foreach ($search_base in $search_bases) {
     Write-Host "Generating Unix attributes for users in '${search_base}'"
     add_user_attributes $search_base
