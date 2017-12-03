@@ -1,5 +1,5 @@
 # ad-posix-attrs
-Adds [RFC2307](https://www.ietf.org/rfc/rfc2307.txt) POSIX attributes to Active Directory for existing users and groups.
+Autogenerates [RFC2307](https://www.ietf.org/rfc/rfc2307.txt) POSIX attributes to Active Directory for existing users and groups.
 
 For users the following attributes are updated:
 * uidNumber
