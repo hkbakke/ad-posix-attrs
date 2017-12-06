@@ -1,6 +1,7 @@
 param (
-    [bool]$DryRun = $false,
-    [bool]$IgnoreAdministrator = $true
+    [switch]$DryRun,
+    [switch]$IncludeAdministrator,
+    [switch]$Force
 )
 
 # Stop execution on all errors
@@ -90,16 +91,19 @@ function add_user_attributes ($search_base) {
     foreach ($ad_user in Get-ADUser -Filter * -SearchBase $search_base -Properties $(@("PrimaryGroupID") + $user_posix_attrs)) {
         $uid = get_uid $ad_user
         $gid = get_primary_group_id $ad_user
-
         if ($uid -eq $id_offset -Or $gid -eq $id_offset) {
             continue
         }
 
-        $username = get_username $ad_user
-        $missing_attrs = get_missing_user_attrs $ad_user
-        $sid_uid = get_sid_uid $ad_user
+        if ($Force) {
+            $missing_attrs = $user_posix_attrs
+        } else {
+            $missing_attrs = get_missing_user_attrs $ad_user
+        }
 
-        if (($IgnoreAdministrator) -and ($sid_uid -eq $administrator_sid_uid)) {
+        $username = get_username $ad_user
+        $sid_uid = get_sid_uid $ad_user
+        if ((-Not ($IncludeAdministrator)) -and ($sid_uid -eq $administrator_sid_uid)) {
             # Pipe via Select-Object to handle empty arrays
             if (Compare-Object @($missing_attrs | Select-Object) @($user_posix_attrs | Select-Object)) {
                 clear_user_attrs $username $user_posix_attrs
@@ -108,7 +112,6 @@ function add_user_attributes ($search_base) {
         }
 
         $new_attrs = @{}
-
         foreach ($attr in $missing_attrs) {
             switch ($attr) {
                 "uidNumber" {
@@ -172,15 +175,17 @@ function get_missing_group_attrs ($ad_group) {
 function add_group_attributes ($search_base) {
     foreach ($ad_group in Get-ADGroup -Filter * -SearchBase $search_base -Properties $group_posix_attrs) {
         $gid = get_gid $ad_group
-
         if ($gid -eq $id_offset) {
             continue
         }
 
-        $groupname = get_groupname $ad_group
-        $missing_attrs = get_missing_group_attrs $ad_group
-        $new_attrs = @{}
+        if ($Force) {
+            $missing_attrs = $group_posix_attrs
+        } else {
+            $missing_attrs = get_missing_group_attrs $ad_group
+        }
 
+        $new_attrs = @{}
         foreach ($attr in $missing_attrs) {
             switch ($attr) {
                 gidNumber {
@@ -189,6 +194,7 @@ function add_group_attributes ($search_base) {
             }
         }
 
+        $groupname = get_groupname $ad_group
         if ($new_attrs.Count -gt 0) {
             update_group_attrs $groupname $new_attrs
         }
