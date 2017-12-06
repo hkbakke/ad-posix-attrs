@@ -1,5 +1,6 @@
 param (
-    [bool]$dryrun = $false
+    [bool]$DryRun = $false,
+    [bool]$IgnoreAdministrator = $true
 )
 
 # Stop execution on all errors
@@ -29,13 +30,18 @@ if ($config.search_bases) {
 # Hard-coded variables
 $user_posix_attrs = "uidNumber", "gidNumber", "unixHomeDirectory", "loginShell"
 $group_posix_attrs = "gidNumber"
+$administrator_sid_uid = 500
 
 
 #
 # User functions
 #
+function get_sid_uid ($ad_user) {
+    return [int]"$($ad_user.SID)".split('-')[7]
+}
+
 function get_uid ($ad_user) {
-    $sid_uid = [int]"$($ad_user.SID)".split('-')[7]
+    $sid_uid = get_sid_uid $ad_user
     return $id_offset + $sid_uid
 }
 
@@ -51,11 +57,19 @@ function get_homedir ($username) {
     return "${homedir_root}/${username}"
 }
 
-function update_user ($username, $attrs) {
+function update_user_attrs ($username, $attrs) {
     Write-Host "`nUpdating attributes for user '${username}'"
     Write-Host $($attrs | Out-String)
-    if (-Not ($dryrun)) {
+    if (-Not ($DryRun)) {
         Set-ADUser -Identity $username -Replace $attrs
+    }
+}
+
+function clear_user_attrs ($username, $attrs) {
+    Write-Host "`nClearing attributes for user '${username}'"
+    Write-Host $($attrs | Out-String)
+    if (-Not ($DryRun)) {
+        Set-ADUser -Identity $username -Clear $attrs
     }
 }
 
@@ -83,6 +97,16 @@ function add_user_attributes ($search_base) {
 
         $username = get_username $ad_user
         $missing_attrs = get_missing_user_attrs $ad_user
+        $sid_uid = get_sid_uid $ad_user
+
+        if (($IgnoreAdministrator) -and ($sid_uid -eq $administrator_sid_uid)) {
+            # Pipe via Select-Object to handle empty arrays
+            if (Compare-Object @($missing_attrs | Select-Object) @($user_posix_attrs | Select-Object)) {
+                clear_user_attrs $username $user_posix_attrs
+            }
+            continue
+        }
+
         $new_attrs = @{}
 
         foreach ($attr in $missing_attrs) {
@@ -103,7 +127,7 @@ function add_user_attributes ($search_base) {
         }
 
         if ($new_attrs.Count -gt 0) {
-            update_user $username $new_attrs
+            update_user_attrs $username $new_attrs
         }
     }
 }
@@ -111,8 +135,12 @@ function add_user_attributes ($search_base) {
 #
 # Group functions
 #
+function get_sid_gid ($ad_group) {
+    return [int]"$($ad_group.SID)".split('-')[7]
+}
+
 function get_gid ($ad_group) {
-    $sid_gid = [int]"$($ad_group.SID)".split('-')[7]
+    $sid_gid = get_sid_gid $ad_group
     return $id_offset + $sid_gid
 }
 
@@ -120,10 +148,10 @@ function get_groupname ($ad_group) {
     return $ad_group.SamAccountName
 }
 
-function update_group ($groupname, $attrs) {
+function update_group_attrs ($groupname, $attrs) {
     Write-Host "`nUpdating attributes for group '${groupname}'"
     Write-Host $($attrs | Out-String)
-    if (-Not ($dryrun)) {
+    if (-Not ($DryRun)) {
         Set-ADGroup -Identity $groupname -Replace $attrs
     }
 }
@@ -162,7 +190,7 @@ function add_group_attributes ($search_base) {
         }
 
         if ($new_attrs.Count -gt 0) {
-            update_group $groupname $new_attrs
+            update_group_attrs $groupname $new_attrs
         }
     }
 }
