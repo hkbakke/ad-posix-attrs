@@ -11,7 +11,7 @@ For groups the following attributes are updated:
 * gidNumber
 
 # Configuration
-Put your configuration in `config.json` in the same folder as `add-attrs.ps1`. In many cases this can just be an empty file. There is an example configuration with default values in [config.json.example](src/config.json.example).
+No configuration file is needed by default. If you want to define a custom configuration, put your configuration in `config.json` in the same folder as `add-attrs.ps1`, or use a custom path with `-Config "path-to-config"`. There is an example configuration with default values in [config.json.example](src/config.json.example).
 
 # Use
 Run in dry-run mode until you are sure it does the right thing:

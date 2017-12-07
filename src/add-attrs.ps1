@@ -1,4 +1,5 @@
 param (
+    [string]$Config = "config.json",
     [switch]$DryRun,
     [switch]$IncludeAdministrator,
     [switch]$Force
@@ -14,18 +15,22 @@ $homedir_root = "/home/$($(Get-ADDomain).DNSRoot)"
 $search_bases = @($(Get-ADDomain).DistinguishedName)
 
 # Import config
-$config = Get-Content -Raw -Path config.json | ConvertFrom-Json
-if ($config.id_offset) {
-    $id_offset = $config.id_offset
-}
-if ($config.login_shell) {
-    $login_shell = $config.login_shell
-}
-if ($config.homedir_root) {
-    $homedir_root = $config.homedir_root
-}
-if ($config.search_bases) {
-    $search_bases = $config.search_bases
+if (Test-Path $Config) {
+    $config = Get-Content -Raw -Path config.json | ConvertFrom-Json
+    if ($config.id_offset) {
+        $id_offset = $config.id_offset
+    }
+    if ($config.login_shell) {
+        $login_shell = $config.login_shell
+    }
+    if ($config.homedir_root) {
+        $homedir_root = $config.homedir_root
+    }
+    if ($config.search_bases) {
+        $search_bases = $config.search_bases
+    }
+} else {
+    Write-Host "The configuration file '${Config}' was not found. Using defaults."
 }
 
 # Hard-coded variables
