@@ -80,7 +80,7 @@ function clear_user_attrs ($username, $attrs) {
 }
 
 function get_missing_user_attrs ($ad_user) {
-    $current_attrs = $ad_user | Select $user_posix_attrs
+    $current_attrs = $ad_user | Select-Object $user_posix_attrs
     $missing_attrs = @()
 
     foreach ($attr in $user_posix_attrs) {
@@ -165,7 +165,7 @@ function update_group_attrs ($groupname, $attrs) {
 }
 
 function get_missing_group_attrs ($ad_group) {
-    $current_attrs = $ad_group | Select $group_posix_attrs
+    $current_attrs = $ad_group | Select-Object $group_posix_attrs
     $missing_attrs = @()
 
     foreach ($attr in $group_posix_attrs) {
