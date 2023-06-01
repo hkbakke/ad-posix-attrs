@@ -30,3 +30,17 @@ Only do this if you know what you are doing! If add-attrs generates other UIDs a
 
 # Note about the Administrator user
 The Administrator user will by default be ignored, and any existing POSIX attributes cleared. This is to be compatible with the Administrator to root mapping in modern Samba Active Directory Domain Controllers. Administrator will not be mapped to root if it has a uidNumber set. However, if you only have Windows Active Directory Domain Controllers it may make sense to assign POSIX attributes to Administrator too, as this user is no more special to non-Windows hosts than any other domain user in behaviour or access levels. To do this set `-IncludeAdministrator`.
+
+# Run as task
+* Create service account in AD
+* Delegate control to your AD structure to this user with the following permissions
+
+        Read All Properties
+        Write All Properties
+
+    For the following object types:
+
+        Group
+        User
+
+* Create a task that executes the powershell script. Run the script as the AD service account. Ensure the AD user has "Log on as a batch job" rights on the host.
